@@ -56,48 +56,62 @@ int main(int argc, char *argv[])
         return 4;
     }
     
+    // preserving original dimensions
+    LONG biwidth_in = bi.biWidth;
+    LONG biheight_in = bi.biHeight;
+    // For infile
+    int padding_in = (4 - (biwidth_in * sizeof(RGBTRIPLE)) % 4) % 4;
     
+    // Changing dimensions for outfile
     bi.biWidth *=factor; 
     bi.biHeight *=factor;
-    bf.bfSize *= (factor*factor);
-     // determine padding for scanlines
+    // determine padding for scanlines
     int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
-    // write outfile's BITMAPFILEHEADER
+    bi.biSizeImage = ((bi.biWidth * sizeof(RGBTRIPLE) + padding) * abs(bi.biHeight));
+    bf.bfSize = bi.biSizeImage + sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER);
+    
+     // write outfile's BITMAPFILEHEADER
     fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
 
     // write outfile's BITMAPINFOHEADER
     fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
 
-   
+    // allocate memory for temp to hold scanline
+    RGBTRIPLE *temp = malloc(sizeof(RGBTRIPLE) * (bi.biWidth));
   
     // iterate over infile's scanlines
-    for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
+    for (int i = 0, biHeight = abs(biheight_in); i < biHeight; i++)
     {
-        //iterate over each line n times
-        for(int z = 0; z <factor;z++)
-        {
+        //sets counter to 0 after each row
+        int counter = 0;
             
         // iterate over pixels in scanline
-        for (int j = 0; j < bi.biWidth; j++)
+        for (int j = 0; j < biwidth_in; j++)
         {
-            //iterate over each pixl n times
-            for(int l = 0; l < factor; l++)
-            {
+        
+    
             // temporary storage
             RGBTRIPLE triple;
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
-
-            // write RGB triple to outfile
-            fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+            //for writing pixel to temp n times
+            for(int trp = 0; trp < factor; trp++)
+            {
+                * ( temp + counter ) = triple;
+                counter++;
+            }
+        
         }
-        }
-
+        
         // skip over padding, if any
-        fseek(inptr, padding, SEEK_CUR);
+        fseek(inptr, padding_in, SEEK_CUR);
 
-        // then add it back (to demonstrate how)
+        // write RGB triple to outfile
+        fwrite(temp, sizeof(RGBTRIPLE), bi.biWidth, outptr);
+        
+        // then add  padding back (to demonstrate how)
+        for(int trp = 0; trp < factor; trp++)
         for (int k = 0; k < padding; k++)
         {
             fputc(0x00, outptr);
@@ -105,7 +119,8 @@ int main(int argc, char *argv[])
     
         }    
     }
-    
+    // free memory from temp
+    free(temp)
 
     // close infile
     fclose(inptr);
@@ -115,4 +130,4 @@ int main(int argc, char *argv[])
 
     // success
     return 0;
-}
+
