@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
 
     // determine padding for scanlines
-    int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
@@ -75,10 +75,6 @@ int main(int argc, char *argv[])
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
-            if (triple.rgbtRed == 0xff)
-            {
-               triple.rgbtRed = 0x00;
-            }
 
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
