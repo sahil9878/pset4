@@ -73,9 +73,16 @@ int main(int argc, char *argv[])
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
     {
+        //iterate over each line n times
+        for(int z = 0; z <factor;z++)
+        {
+            
         // iterate over pixels in scanline
         for (int j = 0; j < bi.biWidth; j++)
         {
+            //iterate over each pixl n times
+            for(int l = 0; l < factor; l++)
+            {
             // temporary storage
             RGBTRIPLE triple;
 
@@ -84,6 +91,7 @@ int main(int argc, char *argv[])
 
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
+        }
         }
 
         // skip over padding, if any
@@ -94,7 +102,10 @@ int main(int argc, char *argv[])
         {
             fputc(0x00, outptr);
         }
+    
+        }    
     }
+    
 
     // close infile
     fclose(inptr);
