@@ -1,0 +1,33 @@
+1.  To ensure portability by specifying the size of certain integer types.
+2.  uint8_t, uint32_t, int32_t, and uint16_t are exact-width integer types
+    which have the same number of bits across all implementations.
+3.  BYTE : 1 byte
+    DWORD : 4 bytes
+    LONG : 4 bytes
+    WORD : 2 bytes
+4.  BM in ASCII.
+5.  bfSize is the size of the bitmap file in bytes whereas biSize is the number of 
+    bytes required by structure.
+6.  Negative biHeight indicates a top-down device-independent Bitmap and 
+    it's origin is the upper left corner.
+7.  biBitCount
+8.  Insufficient memory
+9.  The third argument passed to fread is 1 beacuse the program should read in 1
+    RGB triple at a time.
+10. (4 - ( 3 * 3) % 4) % 4 = (4 - (9 % 4) % 4) = (4 - 1) % 4 = 3
+11. Whenever we're reading into a file there's a file position indicator ,
+    like our cursor, that keeps track of where in file we are. So in order to move
+    that cursor we use this function fseek()
+    it takes three arguments as followed
+    fseek ( inptr, offset, from);
+(a) inptr: FILE * to seek over
+(b) offset: Number of bytes to move cursor
+(c) from ( the position relative to which file pointer will move) :
+    SEEK_CUR (current position in file)
+    SEEK_END (end of file)
+    SEEK_SET (beginning of file)
+    In this program, fseek skips over any padding and looks for the next pixel (RGB triple).
+
+12. SEEK_CUR is the third agument passed to fseek() function which means that file pointer
+    will move relative to the current position of file pointer.
+
