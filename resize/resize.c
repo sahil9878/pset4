@@ -10,15 +10,16 @@
 int main(int argc, char *argv[])
 {
     // ensure proper usage
-    if (argc != 3)
+    if (argc != 4)
     {
-        fprintf(stderr, "Usage: ./copy infile outfile\n");
+        fprintf(stderr, "Usage: ./copy (n) infile outfile\n");
         return 1;
     }
 
-    // remember filenames
-    char *infile = argv[1];
-    char *outfile = argv[2];
+    // remember filenames and factor
+    int factor = atoi(argv[1]);
+    char *infile = argv[2];
+    char *outfile = argv[3];
 
     // open input file 
     FILE *inptr = fopen(infile, "r");
@@ -54,15 +55,17 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Unsupported file format.\n");
         return 4;
     }
-
+    
     // write outfile's BITMAPFILEHEADER
     fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, outptr);
 
+    bi.biWidth *=factor; 
+    bi.biHeight *=factor;
     // write outfile's BITMAPINFOHEADER
     fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, outptr);
 
     // determine padding for scanlines
-    int padding =  (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
+    int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
 
     // iterate over infile's scanlines
     for (int i = 0, biHeight = abs(bi.biHeight); i < biHeight; i++)
@@ -75,10 +78,6 @@ int main(int argc, char *argv[])
 
             // read RGB triple from infile
             fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
-            if (triple.rgbtRed == 0xff)
-            {
-                triple.rgbtRed = 0x00;
-            }
 
             // write RGB triple to outfile
             fwrite(&triple, sizeof(RGBTRIPLE), 1, outptr);
