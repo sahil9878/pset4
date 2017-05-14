@@ -1,9 +1,10 @@
 /**
- * Copies a BMP piece by piece, just because.
+ *resizes the input file by a given factor
  */
        
 #include <stdio.h>
 #include <stdlib.h>
+#include<ctype.h>
 
 #include "bmp.h"
 
@@ -37,6 +38,11 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Could not create %s.\n", outfile);
         return 3;
     }
+     if (factor < 1 || factor > 100)
+    {
+        fprintf(stderr, "Error! range of n must be = [1,100]\n ");
+        return 4;
+    }
 
     // read infile's BITMAPFILEHEADER
     BITMAPFILEHEADER bf;
@@ -53,7 +59,7 @@ int main(int argc, char *argv[])
         fclose(outptr);
         fclose(inptr);
         fprintf(stderr, "Unsupported file format.\n");
-        return 4;
+        return 5;
     }
     
     // preserving original dimensions
@@ -63,11 +69,11 @@ int main(int argc, char *argv[])
     int padding_in = (4 - (biwidth_in * sizeof(RGBTRIPLE)) % 4) % 4;
     
     // Changing dimensions for outfile
-    bi.biWidth *=factor; 
-    bi.biHeight *=factor;
+    bi.biWidth = factor* bi.biWidth; 
+    bi.biHeight =factor * bi.biHeight;
     // determine padding for scanlines
     int padding = (4 - (bi.biWidth * sizeof(RGBTRIPLE)) % 4) % 4;
-    bi.biSizeImage = ((bi.biWidth * sizeof(RGBTRIPLE) + padding) * abs(bi.biHeight));
+    bi.biSizeImage = ((bi.biWidth * sizeof(RGBTRIPLE)) + padding) * abs(bi.biHeight);
     bf.bfSize = bi.biSizeImage + sizeof (BITMAPFILEHEADER) + sizeof (BITMAPINFOHEADER);
     
      // write outfile's BITMAPFILEHEADER
@@ -84,7 +90,6 @@ int main(int argc, char *argv[])
     {
         //sets counter to 0 after each row
         int counter = 0;
-            
         // iterate over pixels in scanline
         for (int j = 0; j < biwidth_in; j++)
         {
@@ -98,7 +103,7 @@ int main(int argc, char *argv[])
             //for writing pixel to temp n times
             for(int trp = 0; trp < factor; trp++)
             {
-                * ( temp + counter ) = triple;
+                *( temp + counter ) = triple;
                 counter++;
             }
         
@@ -108,19 +113,20 @@ int main(int argc, char *argv[])
         fseek(inptr, padding_in, SEEK_CUR);
 
         // write RGB triple to outfile
+          for(int trp = 0; trp < factor; trp++)
+          {
         fwrite(temp, sizeof(RGBTRIPLE), bi.biWidth, outptr);
         
         // then add  padding back (to demonstrate how)
-        for(int trp = 0; trp < factor; trp++)
+      
         for (int k = 0; k < padding; k++)
         {
             fputc(0x00, outptr);
         }
-    
-        }    
+          }
     }
     // free memory from temp
-    free(temp)
+    free(temp);
 
     // close infile
     fclose(inptr);
@@ -131,3 +137,4 @@ int main(int argc, char *argv[])
     // success
     return 0;
 
+}
