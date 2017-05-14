@@ -125,15 +125,14 @@ int main(int argc, char *argv[])
         }
           }
     }
-    // free memory from temp
-    free(temp);
+    
 
     // close infile
     fclose(inptr);
 
-    // close outfile
+   // close outfile
     fclose(outptr);
-
+    
     // success
     return 0;
 
