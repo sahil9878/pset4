@@ -63,6 +63,7 @@ int main(int argc, char* argv[])
     }
     
         }
-   
+    // closing file
+    fclose(filept);
 
 }
