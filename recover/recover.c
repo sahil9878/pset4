@@ -61,9 +61,11 @@ int main(int argc, char* argv[])
             fwrite(buffer, sizeof(unsigned char), 512, pic);
             
     }
-    
+      // If the old JPEG's pixel's aren't over yet
+        else if (pic != NULL) 
+        {
+            fwrite(buffer, sizeof(unsigned char), 512, pic);
         }
-    // closing file
-    fclose(filept);
+        }
 
 }
